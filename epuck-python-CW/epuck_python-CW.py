@@ -179,8 +179,8 @@ class Controller:
             #print("Ground Sensors \n    left {} center {} right {}".format(left,center,right))
                         
             ### Please adjust the ground sensors values to facilitate learning 
-            min_gs = ?
-            max_gs = ?
+            min_gs = 0
+            max_gs = 4095
             
             if(left > max_gs): left = max_gs
             if(center > max_gs): center = max_gs
