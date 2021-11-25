@@ -71,7 +71,7 @@ def mutation(child):
     # Changes a single gene randomly
     after_mutation = []
     ### Define mutation percentage (integer number between 0 and 100)
-    mp = ?
+    mp = 10
     for gene in range(len(child)):
         if(random.randint(1,100) < mp):
             # The random value to be added to the gene
