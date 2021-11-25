@@ -202,8 +202,8 @@ class Controller:
                     temp = self.proximity_sensors[i].getValue()
                     
                     ### Please adjust the distance sensors values to facilitate learning 
-                    min_ds = 0
-                    max_ds = 4095
+                    min_ds = 70
+                    max_ds = 2700
                     
                     if(temp > max_ds): temp = max_ds
                     if(temp < min_ds): temp = min_ds
