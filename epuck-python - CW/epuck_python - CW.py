@@ -198,7 +198,7 @@ class Controller:
             # Read Distance Sensors
             for i in range(8):
                 ### Select the distance sensors that you will use
-                if(i==0 or i==1 or i==2 or i==3 or i==4 or i==5 or i==6 or i==7):        
+                if(i==2):        
                     temp = self.proximity_sensors[i].getValue()
                     
                     ### Please adjust the distance sensors values to facilitate learning 
