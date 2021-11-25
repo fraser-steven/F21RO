@@ -13,7 +13,7 @@ class Controller:
  
         # MLP Parameters and Variables   
         ### Define bellow the architecture of your MLP incluiding the number of neurons on your input, hiddens and output layers. 
-        self.number_input_layer = 3
+        self.number_input_layer = 4
         self.number_hidden_layer = 8
         #self.number_hidden_layer_N = ?
         self.number_output_layer = 2
