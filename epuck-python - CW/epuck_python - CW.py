@@ -103,19 +103,19 @@ class Controller:
         
         ### Define the fitness function to increase the speed of the robot and 
         ### to encourage the robot to move forward only
-        forwardFitness = ?
+        forwardFitness = 1
         
         ### Define the fitness function to encourage the robot to follow the line
-        followLineFitness = ?
+        followLineFitness = 1
                 
         ### Define the fitness function to avoid collision
-        avoidCollisionFitness = ?
+        avoidCollisionFitness = 1
         
         ### Define the fitness function to avoid spining behaviour
-        spinningFitness = ?
+        spinningFitness = 0
          
         ### Define the fitness function of this iteration which should be a combination of the previous functions         
-        combinedFitness = ?
+        combinedFitness = forwardFitness + followLineFitness +avoidCollisionFitness + spinningFitness
         
         self.fitness_values.append(combinedFitness)
         self.fitness = np.mean(self.fitness_values) 
@@ -180,7 +180,7 @@ class Controller:
                         
             ### Please adjust the ground sensors values to facilitate learning 
             min_gs = 0
-            max_gs = 1000
+            max_gs = 4095
             
             if(left > max_gs): left = max_gs
             if(center > max_gs): center = max_gs
@@ -198,12 +198,12 @@ class Controller:
             # Read Distance Sensors
             for i in range(8):
                 ### Select the distance sensors that you will use
-                if(i==2):        
+                if(i==0 or i==1 or i==2 or i==3 or i==4 or i==5 or i==6 or i==7):        
                     temp = self.proximity_sensors[i].getValue()
                     
                     ### Please adjust the distance sensors values to facilitate learning 
-                    min_ds = 70
-                    max_ds = 2100
+                    min_ds = 0 
+                    max_ds = 4095
                     
                     if(temp > max_ds): temp = max_ds
                     if(temp < min_ds): temp = min_ds
