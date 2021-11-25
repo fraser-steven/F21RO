@@ -180,7 +180,7 @@ class Controller:
                         
             ### Please adjust the ground sensors values to facilitate learning 
             min_gs = 0
-            max_gs = 4200
+            max_gs = 1000
             
             if(left > max_gs): left = max_gs
             if(center > max_gs): center = max_gs
@@ -203,7 +203,7 @@ class Controller:
                     
                     ### Please adjust the distance sensors values to facilitate learning 
                     min_ds = 70
-                    max_ds = 2700
+                    max_ds = 2100
                     
                     if(temp > max_ds): temp = max_ds
                     if(temp < min_ds): temp = min_ds
