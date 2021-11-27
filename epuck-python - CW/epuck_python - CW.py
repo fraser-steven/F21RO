@@ -103,16 +103,16 @@ class Controller:
         
         ### Define the fitness function to increase the speed of the robot and 
         ### to encourage the robot to move forward only
-        forwardFitness = 1
+        forwardFitness = (self.velocity_left + self.velocity_right) / 2
         
         ### Define the fitness function to encourage the robot to follow the line
-        followLineFitness = 1
+        followLineFitness = sum(self.inputs[:3])/3
                 
         ### Define the fitness function to avoid collision
-        avoidCollisionFitness = 1
+        avoidCollisionFitness = 1 - self.inputs[3]
         
         ### Define the fitness function to avoid spining behaviour
-        spinningFitness = 0
+        spinningFitness = 1 - (abs(self.velocity_left - self.velocity_right)/2)
          
         ### Define the fitness function of this iteration which should be a combination of the previous functions         
         combinedFitness = forwardFitness + followLineFitness +avoidCollisionFitness + spinningFitness
