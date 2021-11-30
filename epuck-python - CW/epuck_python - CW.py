@@ -106,7 +106,7 @@ class Controller:
         forwardFitness = (self.velocity_left + self.velocity_right) / 2
         
         ### Define the fitness function to encourage the robot to follow the line
-        followLineFitness = sum(self.inputs[:3])/3
+        followLineFitness = 1 - sum(self.inputs[:3])/3
                 
         ### Define the fitness function to avoid collision
         avoidCollisionFitness = 1 - self.inputs[3]
@@ -115,7 +115,7 @@ class Controller:
         spinningFitness = 1 - (abs(self.velocity_left - self.velocity_right)/2)
          
         ### Define the fitness function of this iteration which should be a combination of the previous functions         
-        combinedFitness = forwardFitness + followLineFitness +avoidCollisionFitness + spinningFitness
+        combinedFitness = 0.5 * forwardFitness + 2 * followLineFitness + avoidCollisionFitness + 0.5 * spinningFitness
         
         self.fitness_values.append(combinedFitness)
         self.fitness = np.mean(self.fitness_values) 
@@ -179,8 +179,8 @@ class Controller:
             #print("Ground Sensors \n    left {} center {} right {}".format(left,center,right))
                         
             ### Please adjust the ground sensors values to facilitate learning 
-            min_gs = 0
-            max_gs = 1000
+            min_gs = 250
+            max_gs = 900
             
             if(left > max_gs): left = max_gs
             if(center > max_gs): center = max_gs
