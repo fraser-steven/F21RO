@@ -12,19 +12,35 @@ class Controller:
         self.max_speed = 1  # m/s
  
         # MLP Parameters and Variables   
-        ### Define bellow the architecture of your MLP incluiding the number of neurons on your input, hiddens and output layers. 
-        self.number_input_layer = 4
-        self.number_hidden_layer = 8
-        #self.number_hidden_layer_N = ?
+        ### Define below the architecture of your MLP network. 
+        ### Add the number of neurons for each layer.
+        ### The number of neurons should be in between of 1 to 20.
+        ### Number of hidden layers should be one or two.
+        self.number_input_layer = 7
+        # Example with one hidden layers: self.number_hidden_layer = [5]
+        # Example with two hidden layers: self.number_hidden_layer = [7,5]
+        self.number_hidden_layer = [10] 
         self.number_output_layer = 2
         
+        # Create a list with the number of neurons per layer
+        self.number_neuros_per_layer = []
+        self.number_neuros_per_layer.append(self.number_input_layer)
+        self.number_neuros_per_layer.extend(self.number_hidden_layer)
+        self.number_neuros_per_layer.append(self.number_output_layer)
+        
         # Initialize the network
-        self.network = ntw.MLP(self.number_input_layer,self.number_hidden_layer, self.number_output_layer)
+        self.network = ntw.MLP(self.number_neuros_per_layer)
         # Example with 2 hidden layers        #ntw.MLP(self.number_input_layer,self.number_hidden_layer_1,self.number_hidden_layer_2,self.number_output_layer)
         self.inputs = []
         
         # Calculate the number of weights of your MLP
-        self.number_weights = (self.number_input_layer+1)*self.number_hidden_layer + self.number_hidden_layer*self.number_output_layer
+        self.number_weights = 0
+        for n in range(1,len(self.number_neuros_per_layer)):
+            if(n == 1):
+                # Input + bias
+                self.number_weights += (self.number_neuros_per_layer[n-1]+1)*self.number_neuros_per_layer[n]
+            else:
+                self.number_weights += self.number_neuros_per_layer[n-1]*self.number_neuros_per_layer[n]
 
         # Enable Motors
         self.left_motor = self.robot.getDevice('left wheel motor')
@@ -65,19 +81,35 @@ class Controller:
 
     def check_for_new_genes(self):
         if(self.flagMessage == True):
-                # Receive genotype and set the weights of the network
-                #print("\n New genotype")
-                self.data = []
-                part1 = (self.number_input_layer+1)*self.number_hidden_layer
-                part2 = self.number_hidden_layer*self.number_output_layer
-                self.network.weightsPart1 = self.receivedData[0:part1]
-                self.network.weightsPart2 = self.receivedData[part1:]
-                self.network.weightsPart1 = self.network.weightsPart1.reshape([self.number_input_layer+1,self.number_hidden_layer])
-                self.network.weightsPart2 = self.network.weightsPart2.reshape([self.number_hidden_layer,self.number_output_layer])
-                self.data.append(self.network.weightsPart1)
-                self.data.append(self.network.weightsPart2)
-                self.network.weights = self.data
+                # Split the list based on the number of layers of your network
+                part = []
+                for n in range(1,len(self.number_neuros_per_layer)):
+                    if(n == 1):
+                        part.append((self.number_neuros_per_layer[n-1]+1)*(self.number_neuros_per_layer[n]))
+                    else:   
+                        part.append(self.number_neuros_per_layer[n-1]*self.number_neuros_per_layer[n])
                 
+                # Set the weights of the network
+                data = []
+                weightsPart = []
+                sum = 0
+                for n in range(1,len(self.number_neuros_per_layer)):
+                    if(n == 1):
+                        weightsPart.append(self.receivedData[n-1:part[n-1]])
+                    elif(n == (len(self.number_neuros_per_layer)-1)):
+                        weightsPart.append(self.receivedData[sum:])
+                    else:
+                        weightsPart.append(self.receivedData[sum:sum+part[n-1]])
+                    sum += part[n-1]
+                for n in range(1,len(self.number_neuros_per_layer)):  
+                    if(n == 1):
+                        weightsPart[n-1] = weightsPart[n-1].reshape([self.number_neuros_per_layer[n-1]+1,self.number_neuros_per_layer[n]])    
+                    else:
+                        weightsPart[n-1] = weightsPart[n-1].reshape([self.number_neuros_per_layer[n-1],self.number_neuros_per_layer[n]])    
+                    data.append(weightsPart[n-1])                
+                self.network.weights = data
+                
+                #Reset fitness list
                 self.fitness_values = []
 
     def clip_value(self,value,min_max):
@@ -91,6 +123,7 @@ class Controller:
         # MLP: 
         #   Input == sensory data
         #   Output == motors commands
+        #print(self.inputs)
         output = self.network.propagate_forward(self.inputs)
         self.velocity_left = output[0]
         self.velocity_right = output[1]
@@ -109,13 +142,14 @@ class Controller:
         followLineFitness = 1 - sum(self.inputs[:3])/3
                 
         ### Define the fitness function to avoid collision
-        avoidCollisionFitness = 1 - self.inputs[3]
-        
+        avoidCollisionFitness = 1 - max(self.inputs[3:])
+        #print(avoidCollisionFitness)
+         
         ### Define the fitness function to avoid spining behaviour
         spinningFitness = 1 - (abs(self.velocity_left - self.velocity_right)/2)
          
         ### Define the fitness function of this iteration which should be a combination of the previous functions         
-        combinedFitness = 0.5 * forwardFitness + 2 * followLineFitness + avoidCollisionFitness + 0.5 * spinningFitness
+        combinedFitness = forwardFitness + 1.3 * followLineFitness + avoidCollisionFitness + spinningFitness
         
         self.fitness_values.append(combinedFitness)
         self.fitness = np.mean(self.fitness_values) 
@@ -179,8 +213,8 @@ class Controller:
             #print("Ground Sensors \n    left {} center {} right {}".format(left,center,right))
                         
             ### Please adjust the ground sensors values to facilitate learning 
-            min_gs = 250
-            max_gs = 900
+            min_gs = 300
+            max_gs = 700
             
             if(left > max_gs): left = max_gs
             if(center > max_gs): center = max_gs
@@ -198,12 +232,12 @@ class Controller:
             # Read Distance Sensors
             for i in range(8):
                 ### Select the distance sensors that you will use
-                if(i==2):        
+                if(i==0 or i==1 or i==6 or i==7):        
                     temp = self.proximity_sensors[i].getValue()
                     
                     ### Please adjust the distance sensors values to facilitate learning 
-                    min_ds = 70 
-                    max_ds = 2100
+                    min_ds = 80 
+                    max_ds = 200
                     
                     if(temp > max_ds): temp = max_ds
                     if(temp < min_ds): temp = min_ds
@@ -229,4 +263,3 @@ if __name__ == "__main__":
     controller = Controller(my_robot)
     # Run the controller
     controller.run_robot()
-    
