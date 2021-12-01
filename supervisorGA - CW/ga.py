@@ -2,7 +2,7 @@ import numpy,random
 
 def population_reproduce(genotypes,elite):
     ### Define crossover rate (integer number between 0 and 100)
-    cp = 10
+    cp = 50
     genotypes_not_ranked = genotypes
     # Rank: lowest to highest fitness
     genotypes = rankPopulation(genotypes)
